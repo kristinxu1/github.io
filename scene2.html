@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A Forgotten Garden - Scene 2</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+      }
+
+      img {
+        display: block;
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+
+      .wilted-scene {
+        z-index: 0;
+        object-fit: cover;
+        object-position: center;
+      }
+
+      .dialogue-box {
+        inset: auto 0 0;
+        z-index: 3;
+        width: 100%;
+        height: auto;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 200ms ease;
+      }
+
+      .dialogue-box.is-visible {
+        opacity: 0.7;
+      }
+
+      .dialogue-copy {
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        z-index: 4;
+        display: flex;
+        width: 100vw;
+        aspect-ratio: 1920 / 524;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.12em;
+        padding: 2% 8%;
+        box-sizing: border-box;
+        color: #000;
+        font-family: "Cormorant Garamond", serif;
+        font-size: 30pt;
+        font-weight: 700;
+        line-height: 1.1;
+        text-align: center;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity 200ms ease;
+      }
+
+      .dialogue-copy.is-visible {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .dialogue-copy span {
+        display: block;
+        width: 100%;
+      }
+
+      .dialogue-copy a {
+        color: inherit;
+        text-decoration: underline;
+        pointer-events: auto;
+        cursor: pointer;
+      }
+
+      .rose-person {
+        z-index: 2;
+        transform: translateX(-480px);
+      }
+    </style>
+  </head>
+  <body>
+    <img class="wilted-scene" src="图片/凋谢场景.PNG" alt="凋谢场景" />
+    <img class="dialogue-box" src="图片/对话框.PNG" alt="对话框" />
+    <img class="rose-person" src="图片/玫瑰人.PNG" alt="玫瑰人" />
+    <div class="dialogue-copy dialogue-copy-first" aria-hidden="true">
+      <span>I am the Rose Spirit of this garden.</span>
+      <span>I have been here for a very, very long time.</span>
+    </div>
+    <div class="dialogue-copy dialogue-copy-second" aria-hidden="true">
+      <span>This place wasn’t always like this.</span>
+      <span>It used to be a garden filled with blooming blue roses.</span>
+    </div>
+    <div class="dialogue-copy dialogue-copy-third" aria-hidden="true">
+      <span>There were many spirits like me,</span>
+      <span>and people used to come here to see the roses.</span>
+    </div>
+    <div class="dialogue-copy dialogue-copy-fourth" aria-hidden="true">
+      <span>But one day,</span>
+      <span>people began to believe</span>
+      <span>that blue roses were a bad omen.</span>
+    </div>
+    <div class="dialogue-copy dialogue-copy-fifth" aria-hidden="true">
+      <span>They stopped coming here.</span>
+      <span>And as time passed, they slowly forgot about us.</span>
+    </div>
+    <div class="dialogue-copy dialogue-copy-sixth" aria-hidden="true">
+      <span>When a spirit is forgotten,</span>
+      <span>we slowly lose the form we once had.</span>
+    </div>
+    <div class="dialogue-copy dialogue-copy-seventh" aria-hidden="true">
+      <span>It’s been so long…</span>
+      <span>I can barely remember my own face.</span>
+    </div>
+    <div class="dialogue-copy dialogue-copy-eighth" aria-hidden="true">
+      <span>But I still remember what this garden used to look like.</span>
+    </div>
+    <div class="dialogue-copy dialogue-copy-ninth" aria-hidden="true">
+      <span>Do you want to enter my <a href="scene3.html">MEMORY</a>?</span>
+    </div>
+    <script>
+      const rosePerson = document.querySelector('.rose-person');
+      const dialogueBox = document.querySelector('.dialogue-box');
+      const firstDialogue = document.querySelector('.dialogue-copy-first');
+      const secondDialogue = document.querySelector('.dialogue-copy-second');
+      const thirdDialogue = document.querySelector('.dialogue-copy-third');
+      const fourthDialogue = document.querySelector('.dialogue-copy-fourth');
+      const fifthDialogue = document.querySelector('.dialogue-copy-fifth');
+      const sixthDialogue = document.querySelector('.dialogue-copy-sixth');
+      const seventhDialogue = document.querySelector('.dialogue-copy-seventh');
+      const eighthDialogue = document.querySelector('.dialogue-copy-eighth');
+      const ninthDialogue = document.querySelector('.dialogue-copy-ninth');
+      let roseClickCount = 0;
+
+      rosePerson.addEventListener('click', () => {
+        dialogueBox.classList.add('is-visible');
+
+        if (roseClickCount === 0) {
+          firstDialogue.classList.add('is-visible');
+          firstDialogue.setAttribute('aria-hidden', 'false');
+        } else if (roseClickCount === 1) {
+          firstDialogue.classList.remove('is-visible');
+          firstDialogue.setAttribute('aria-hidden', 'true');
+          secondDialogue.classList.add('is-visible');
+          secondDialogue.setAttribute('aria-hidden', 'false');
+        } else if (roseClickCount === 2) {
+          secondDialogue.classList.remove('is-visible');
+          secondDialogue.setAttribute('aria-hidden', 'true');
+          thirdDialogue.classList.add('is-visible');
+          thirdDialogue.setAttribute('aria-hidden', 'false');
+        } else if (roseClickCount === 3) {
+          thirdDialogue.classList.remove('is-visible');
+          thirdDialogue.setAttribute('aria-hidden', 'true');
+          fourthDialogue.classList.add('is-visible');
+          fourthDialogue.setAttribute('aria-hidden', 'false');
+        } else if (roseClickCount === 4) {
+          fourthDialogue.classList.remove('is-visible');
+          fourthDialogue.setAttribute('aria-hidden', 'true');
+          fifthDialogue.classList.add('is-visible');
+          fifthDialogue.setAttribute('aria-hidden', 'false');
+        } else if (roseClickCount === 5) {
+          fifthDialogue.classList.remove('is-visible');
+          fifthDialogue.setAttribute('aria-hidden', 'true');
+          sixthDialogue.classList.add('is-visible');
+          sixthDialogue.setAttribute('aria-hidden', 'false');
+        } else if (roseClickCount === 6) {
+          sixthDialogue.classList.remove('is-visible');
+          sixthDialogue.setAttribute('aria-hidden', 'true');
+          seventhDialogue.classList.add('is-visible');
+          seventhDialogue.setAttribute('aria-hidden', 'false');
+        } else if (roseClickCount === 7) {
+          seventhDialogue.classList.remove('is-visible');
+          seventhDialogue.setAttribute('aria-hidden', 'true');
+          eighthDialogue.classList.add('is-visible');
+          eighthDialogue.setAttribute('aria-hidden', 'false');
+        } else if (roseClickCount === 8) {
+          eighthDialogue.classList.remove('is-visible');
+          eighthDialogue.setAttribute('aria-hidden', 'true');
+          ninthDialogue.classList.add('is-visible');
+          ninthDialogue.setAttribute('aria-hidden', 'false');
+        }
+
+        roseClickCount += 1;
+      });
+    </script>
+      <script>
+      ["pointerdown", "keydown", "wheel"].forEach((t) =>
+        window.addEventListener(t, () => window.parent.postMessage("bgm-start", "*"), { once: true })
+      );
+    </script>
+  </body>
+</html>

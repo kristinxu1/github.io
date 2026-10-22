@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A Forgotten Garden - Scene 5</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond&display=swap" rel="stylesheet" />
+    <style>
+      html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; }
+      .bg { position: fixed; inset: 0; width: 100vw; height: 100vh; object-fit: cover; }
+      .stage { position: fixed; inset: 0; transform: scale(1.3); transform-origin: 50% 100%; z-index: 1; pointer-events: none; }
+      .stage img { pointer-events: auto; }
+      .person { position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); height: 80vh; width: auto; z-index: 1; }
+      .rose { position: absolute; left: calc(50% + 30px); bottom: calc(40vh - 375px); transform: translateX(-50%); height: calc(80vh / 2 - 5px + 10px * 9 / 16); width: auto; z-index: 2; transition: transform 0.3s ease; }
+      .rose:hover { transform: translateX(-50%) scale(1.1) rotate(15deg); }
+      .scene { visibility: hidden; }
+      .scene.show { visibility: visible; }
+      .intro { position: fixed; inset: 0; width: 100vw; height: 100vh; object-fit: cover; z-index: 10; }
+      .intro.hide, .intro-gif { display: none; }
+      .intro-gif.play { display: block; }
+      .intro-gif.hide { display: none; }
+      .overlay { position: fixed; left: calc(50% - 90px); top: calc(50% + 10px); transform: translate(-50%, -50%); height: 18.75vh; width: auto; z-index: 11; opacity: 0; cursor: pointer; }
+      .overlay.hide { display: none; }
+      .glitch { position: fixed; inset: 0; width: 100vw; height: 100vh; object-fit: cover; z-index: 5; display: none; }
+      .glitch.show { display: block; }
+      .black { position: fixed; inset: 0; background: #000; z-index: 20; display: none; flex-direction: column; justify-content: center; align-items: center; gap: 1.2em; padding: 0 8vw; box-sizing: border-box; text-align: center; }
+      .black.show { display: flex; }
+      .black p { margin: 0; color: #fff; font-family: "Cormorant Garamond", serif; font-size: 60pt; opacity: 0; transition: opacity 1s ease; }
+      .black p.visible { opacity: 1; }
+    </style>
+  </head>
+  <body>
+    <img class="bg scene" src="图片/背景.PNG" alt="背景" />
+    <div class="stage scene">
+      <img class="person" src="图片/捧花人.PNG" alt="捧花人" />
+      <img class="rose" src="图片/玫瑰.PNG" alt="玫瑰" />
+    </div>
+    <img class="glitch" src="图片/故障.PNG" alt="故障" />
+    <div class="black">
+      <p>No. This isn't right.</p>
+      <p>This place no longer exists.</p>
+      <p>It's too beautiful for the world as it is now.</p>
+      <p>YOU SHOULDN'T BE HERE.</p>
+      <p>Please go back to reality.</p>
+    </div>
+    <canvas class="intro" aria-label="玫瑰长大"></canvas>
+    <img class="overlay" src="图片/1.PNG" alt="1" />
+    <script>
+      const intro = document.querySelector(".intro");
+      const overlay = document.querySelector(".overlay");
+      const gif = new Image();
+      gif.onload = () => {
+        intro.width = gif.naturalWidth;
+        intro.height = gif.naturalHeight;
+        intro.getContext("2d").drawImage(gif, 0, 0);
+      };
+      gif.src = "图片/玫瑰长大.GIF";
+      const gifPlayer = document.createElement("img");
+      gifPlayer.className = "intro intro-gif";
+      gifPlayer.alt = "玫瑰长大";
+      document.body.insertBefore(gifPlayer, overlay);
+      overlay.addEventListener("click", () => {
+        if (gifPlayer.classList.contains("play")) return;
+        gifPlayer.src = "图片/玫瑰长大.GIF";
+        gifPlayer.classList.add("play");
+        intro.classList.add("hide");
+      });
+      const reveal = (e) => {
+        if (e.deltaY > 0) {
+          intro.classList.add("hide");
+          gifPlayer.classList.add("hide");
+          overlay.classList.add("hide");
+          document.querySelectorAll(".scene").forEach((el) => el.classList.add("show"));
+        }
+      };
+      [intro, gifPlayer, overlay].forEach((el) => el.addEventListener("wheel", reveal));
+      document.querySelector(".rose").addEventListener("click", () => {
+        document.querySelectorAll(".scene").forEach((el) => el.classList.remove("show"));
+        document.querySelector(".glitch").classList.add("show");
+        setTimeout(() => {
+          const black = document.querySelector(".black");
+          black.classList.add("show");
+          const lines = document.querySelectorAll(".black p");
+          lines.forEach((p, i) => {
+            setTimeout(() => p.classList.add("visible"), 1000 + i * 1500);
+          });
+          setTimeout(() => { location.href = "scene6.html"; }, 1000 + (lines.length - 1) * 1500 + 2000);
+        }, 2000);
+      });
+    </script>
+      <script>
+      ["pointerdown", "keydown", "wheel"].forEach((t) =>
+        window.addEventListener(t, () => window.parent.postMessage("bgm-start", "*"), { once: true })
+      );
+    </script>
+  </body>
+</html>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A Forgotten Garden - Scene 7</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond&display=swap" rel="stylesheet" />
+    <style>
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        background: #000;
+      }
+
+      .rose-shake {
+        position: fixed;
+        inset: 0;
+        z-index: 2;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 2s ease;
+      }
+
+      .rose-shake.is-visible {
+        opacity: 1;
+      }
+      img {
+        display: block;
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+
+      .wilted-scene {
+        z-index: 0;
+        object-fit: cover;
+        object-position: center;
+      }
+
+      .rose-bloom {
+        position: fixed;
+        inset: 0;
+        z-index: 1;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        transform: translate(-210px, 210px) scale(0.4793);
+        transition: opacity 1.5s ease;
+      }
+
+      .prompt-wrap {
+        position: fixed;
+        top: calc(15vh + 100px);
+        left: 50%;
+        z-index: 2;
+        width: max-content;
+        max-width: 90vw;
+        color: #fff;
+        font-family: "Cormorant Garamond", serif;
+        font-size: 40pt;
+        text-align: left;
+        transform: translateX(-50%);
+        opacity: 0;
+        transition: opacity 1s ease;
+        pointer-events: none;
+      }
+
+      .prompt-wrap p {
+        margin: 0;
+      }
+
+      .prompt-wrap .choices {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 200px;
+      }
+
+      .prompt-wrap .leave,
+      .prompt-wrap .save {
+        pointer-events: auto;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+      }
+
+      .prompt-wrap .leave {
+        transform-origin: left center;
+      }
+
+      .prompt-wrap .save {
+        transform-origin: right center;
+      }
+
+      .prompt-wrap .leave:hover,
+      .prompt-wrap .save:hover {
+        transform: scale(1.1667);
+      }
+
+      .prompt-wrap.is-visible {
+        opacity: 1;
+      }
+
+      .after-text {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        z-index: 2;
+        margin: 0;
+        width: 90vw;
+        color: #fff;
+        font-family: "Cormorant Garamond", serif;
+        font-size: 40pt;
+        text-align: center;
+        transform: translate(-50%, -50%);
+        -webkit-text-stroke: 4px #000;
+        paint-order: stroke fill;
+        opacity: 0;
+        transition: opacity 1s ease;
+        pointer-events: none;
+      }
+
+      .after-text.is-visible {
+        opacity: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <img class="wilted-scene" src="图片/凋谢场景2.PNG" alt="凋谢场景2" />
+    <canvas class="rose-bloom" aria-label="枯萎玫瑰盛开"></canvas>
+    <div class="prompt-wrap">
+      <p class="prompt">What will you do with the last blue rose?</p>
+      <div class="choices">
+        <p class="leave">LEAVE IT</p>
+        <p class="save">SAVE IT</p>
+      </div>
+    </div>
+    <video class="rose-shake" src="图片/玫瑰摇晃.mov" muted playsinline preload="auto"></video>
+    <p class="after-text">“I suppose nothing has changed.”</p>
+    <p class="after-text">“Once again, someone chose to walk away.”</p>
+    <p class="after-text">“And this time, there is no one left to remember us.”</p>
+    <p class="after-text">“You brought the roses back...”</p>
+    <p class="after-text">“Even after everything you've seen, you chose to stay.”</p>
+    <p class="after-text">“Perhaps being different was never something we needed to change.”</p>
+    <p class="after-text">“Thank you for remembering us.”</p>
+    <script>
+      const promptWrap = document.querySelector(".prompt-wrap");
+      setTimeout(() => promptWrap.classList.add("is-visible"), 1000);
+      document.querySelector(".save").addEventListener("click", () => {
+        promptWrap.style.pointerEvents = "none";
+        promptWrap.classList.remove("is-visible");
+        const saveText = document.querySelectorAll(".after-text")[3];
+        setTimeout(() => saveText.classList.add("is-visible"), 3000);
+        setTimeout(() => saveText.classList.remove("is-visible"), 5000);
+        setTimeout(() => document.querySelectorAll(".after-text")[4].classList.add("is-visible"), 6000);
+        setTimeout(() => document.querySelectorAll(".after-text")[4].classList.remove("is-visible"), 8000);
+        setTimeout(() => document.querySelectorAll(".after-text")[5].classList.add("is-visible"), 9000);
+        setTimeout(() => document.querySelectorAll(".after-text")[5].classList.remove("is-visible"), 11000);
+        setTimeout(() => document.querySelectorAll(".after-text")[6].classList.add("is-visible"), 12000);
+        setTimeout(() => document.querySelectorAll(".after-text")[6].classList.remove("is-visible"), 14000);
+        setTimeout(() => {
+          const playing = document.createElement("img");
+          playing.className = "rose-bloom";
+          playing.alt = "枯萎玫瑰盛开";
+          playing.src = "图片/枯萎玫瑰盛开.GIF?play=" + Date.now();
+          document.querySelector(".rose-bloom").replaceWith(playing);
+        }, 16000);
+        // GIF 约 0.55 秒播完,+1 秒后视频直接在两图上方淡入
+        setTimeout(() => {
+          const v = document.querySelector(".rose-shake");
+          v.muted = true;
+          v.play();
+          v.classList.add("is-visible");
+        }, 17550);
+      });
+      document.querySelector(".leave").addEventListener("click", () => {
+        promptWrap.style.pointerEvents = "none";
+        promptWrap.classList.remove("is-visible");
+        const [first, second, third] = document.querySelectorAll(".after-text");
+        setTimeout(() => first.classList.add("is-visible"), 3000);
+        setTimeout(() => first.classList.remove("is-visible"), 5000);
+        setTimeout(() => second.classList.add("is-visible"), 6000);
+        setTimeout(() => second.classList.remove("is-visible"), 8000);
+        setTimeout(() => third.classList.add("is-visible"), 9000);
+        setTimeout(() => third.classList.remove("is-visible"), 11000);
+        setTimeout(() => {
+          document.querySelector(".rose-bloom").style.opacity = "0";
+        }, 13000);
+      });
+    </script>
+    <script>
+      const bloom = document.querySelector(".rose-bloom");
+      const gif = new Image();
+      gif.onload = () => {
+        bloom.width = gif.naturalWidth;
+        bloom.height = gif.naturalHeight;
+        bloom.getContext("2d").drawImage(gif, 0, 0);
+      };
+      gif.src = "图片/枯萎玫瑰盛开.GIF";
+    </script>
+    <script>
+      ["pointerdown", "keydown", "wheel"].forEach((t) =>
+        window.addEventListener(t, () => window.parent.postMessage("bgm-start", "*"), { once: true })
+      );
+    </script>
+  </body>
+</html>

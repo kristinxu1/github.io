@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A Forgotten Garden - Scene 3</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        touch-action: none;
+      }
+
+      .scene3-view {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        overflow: hidden;
+        transform: translateX(0);
+        transition: transform 850ms cubic-bezier(0.65, 0, 0.35, 1);
+      }
+
+      .scene3-view.is-leaving-left {
+        transform: translateX(-100%);
+      }
+
+      .scene4-preview {
+        position: fixed;
+        inset: 0;
+        z-index: 1;
+        width: 100%;
+        height: 100%;
+        border: 0;
+        background: #fff;
+        transform: translateX(100%);
+        transition: transform 850ms cubic-bezier(0.65, 0, 0.35, 1);
+        pointer-events: none;
+      }
+
+      .scene4-preview.is-entering-left {
+        transform: translateX(0);
+      }
+
+      img {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+      }
+
+      .garden-scene {
+        z-index: 0;
+      }
+
+      .spirit {
+        z-index: 1;
+        object-fit: contain;
+        transform: translateX(-480px);
+        transition: transform 1100ms cubic-bezier(0.58, 0, 0.9, 0.45), opacity 1100ms ease;
+      }
+
+      .spirit.is-leaving {
+        transform: translateX(calc(-100vw - 480px));
+        opacity: 0;
+      }
+
+      .dialogue-box {
+        inset: auto 0 0;
+        z-index: 2;
+        width: 100%;
+        height: auto;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 450ms ease, transform 450ms cubic-bezier(0.58, 0, 0.9, 0.45);
+      }
+
+      .dialogue-box.is-visible {
+        opacity: 0.7;
+      }
+
+      .dialogue-box.is-leaving {
+        transform: translateX(-100vw);
+        opacity: 0;
+      }
+
+      .dialogue-box.is-reappearing-from-bottom {
+        transform: translateY(100vh);
+        opacity: 0;
+        transition: none;
+      }
+
+      .dialogue-copy {
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        z-index: 3;
+        display: flex;
+        width: 100vw;
+        aspect-ratio: 1920 / 524;
+        align-items: center;
+        justify-content: center;
+        padding: 2% 8%;
+        box-sizing: border-box;
+        color: #000;
+        font-family: "Cormorant Garamond", serif;
+        font-size: 30pt;
+        font-weight: 700;
+        line-height: 1.1;
+        text-align: center;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity 1100ms ease, transform 1100ms cubic-bezier(0.58, 0, 0.9, 0.45);
+      }
+
+      .dialogue-copy.is-visible {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .dialogue-copy.is-leaving {
+        transform: translateX(-100vw);
+        opacity: 0;
+      }
+
+      .dialogue-copy a {
+        color: inherit;
+        text-decoration: underline;
+        pointer-events: auto;
+        cursor: pointer;
+      }
+
+      .spirit {
+        -webkit-user-drag: none;
+        user-select: none;
+      }
+      .play-transition-petals {
+        position: fixed;
+        inset: 0;
+        z-index: 10;
+        pointer-events: none;
+      }
+
+      .play-transition-petals canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="scene3-view">
+    <img class="garden-scene" src="图片/盛开场景.PNG" alt="盛开场景" />
+    <img class="spirit" src="图片/精灵.PNG" alt="精灵" draggable="false" />
+    <img class="dialogue-box" src="图片/对话框.PNG" alt="对话框" />
+    <div class="dialogue-copy" aria-hidden="true">
+      <span>This is what I used to look like.</span>
+    </div>
+    <div class="dialogue-copy dialogue-copy-second" aria-hidden="true">
+      <span>Do you want to <a href="scene4.html">play</a> with the petals?<br />Or just <a href="scene5.html">look around</a> in my memory?</span>
+    </div>
+    </div>
+    <iframe class="scene4-preview" src="scene4.html" title="Scene 4" aria-hidden="true"></iframe>
+    <div class="play-transition-petals" aria-hidden="true">
+      <canvas class="play-petal-canvas"></canvas>
+    </div>
+    <script>
+      const scene3View = document.querySelector('.scene3-view');
+      const scene4Preview = document.querySelector('.scene4-preview');
+      const spirit = document.querySelector('.spirit');
+      const dialogueBox = document.querySelector('.dialogue-box');
+      const dialogueCopy = document.querySelector('.dialogue-copy');
+      const dialogueCopySecond = document.querySelector('.dialogue-copy-second');
+      let isNavigatingToNextScene = false;
+      let isReturningFromScene4 = false;
+      let spiritClickCount = 0;
+
+      window.addEventListener('pageshow', () => {
+        isReturningFromScene4 = sessionStorage.getItem('scene3ReturnFromScene4') === 'true';
+        sessionStorage.removeItem('scene3ReturnFromScene4');
+        scene3View.classList.remove('is-leaving-left');
+        scene4Preview.classList.remove('is-entering-left');
+        isNavigatingToNextScene = false;
+
+        if (isReturningFromScene4) {
+          dialogueBox.classList.add('is-visible');
+          dialogueCopy.classList.remove('is-visible');
+          dialogueCopySecond.classList.add('is-visible');
+          dialogueCopy.setAttribute('aria-hidden', 'true');
+          dialogueCopySecond.setAttribute('aria-hidden', 'false');
+          spiritClickCount = 2;
+        }
+      });
+
+      spirit.addEventListener('click', () => {
+        dialogueBox.classList.add('is-visible');
+        if (spiritClickCount === 0) {
+          dialogueCopy.classList.add('is-visible');
+          dialogueCopy.setAttribute('aria-hidden', 'false');
+        } else {
+          dialogueCopy.classList.remove('is-visible');
+          dialogueCopy.setAttribute('aria-hidden', 'true');
+          dialogueCopySecond.classList.add('is-visible');
+          dialogueCopySecond.setAttribute('aria-hidden', 'false');
+        }
+        spiritClickCount += 1;
+      });
+
+      window.addEventListener('wheel', (event) => {
+        const isWheelDown = event.deltaY > 0 ||
+          (typeof event.wheelDeltaY === 'number' && event.wheelDeltaY < 0) ||
+          (typeof event.detail === 'number' && event.detail > 0);
+        if (
+          !isReturningFromScene4 ||
+          !isWheelDown ||
+          isNavigatingToNextScene
+        ) {
+          return;
+        }
+
+        isNavigatingToNextScene = true;
+        scene3View.classList.add('is-leaving-left');
+        scene4Preview.classList.add('is-entering-left');
+        window.setTimeout(() => {
+          window.location.href = 'scene4.html';
+        }, 3600);
+      }, { capture: true, passive: true });
+
+      const playLink = document.querySelector('.dialogue-copy-second a[href="scene4.html"]');
+      const playPetalCanvas = document.querySelector('.play-petal-canvas');
+      const playPetalContext = playPetalCanvas.getContext('2d');
+      const playPetalImage = new Image();
+      playPetalImage.src = '图片/花瓣.PNG';
+      let hasStartedPetalSweep = false;
+      let isPetalAnimationRunning = false;
+
+      playLink.addEventListener('click', (event) => {
+        event.preventDefault();
+        if (isNavigatingToNextScene) {
+          return;
+        }
+
+        isNavigatingToNextScene = true;
+        scene3View.classList.add('is-leaving-left');
+        scene4Preview.classList.add('is-entering-left');
+        startPlayPetalSweep();
+        window.setTimeout(() => {
+          window.location.href = 'scene4.html';
+        }, 3600);
+      });
+
+      function startPlayPetalSweep() {
+        if (hasStartedPetalSweep) {
+          return;
+        }
+        hasStartedPetalSweep = true;
+
+        const startAnimation = () => {
+          const width = window.innerWidth;
+          const height = window.innerHeight;
+          const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.25);
+          const petalHeightRatio = playPetalImage.naturalHeight / playPetalImage.naturalWidth;
+          const petals = Array.from({ length: 300 }, (_, index) => {
+            const size = 75 + Math.random() * 75;
+            const x = width + size + Math.random() * width * 0.2;
+            const duration = 1800 + Math.random() * 600;
+            const distance = x + size + 160;
+            return {
+              x,
+              y: Math.random() * height,
+              size,
+              height: size * petalHeightRatio,
+              distance,
+              duration,
+              delay: (index / 299) * 900 + Math.random() * 100,
+              rotation: Math.random() * Math.PI * 2,
+              rotationSpeed: (Math.random() - 0.5) * 0.8,
+              sway: 8 + Math.random() * 18,
+              phase: Math.random() * Math.PI * 2
+            };
+          });
+
+          playPetalCanvas.width = Math.round(width * pixelRatio);
+          playPetalCanvas.height = Math.round(height * pixelRatio);
+          const startTime = performance.now();
+
+          function drawFrame(timestamp) {
+            playPetalContext.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+            playPetalContext.clearRect(0, 0, window.innerWidth, window.innerHeight);
+            let hasActivePetals = false;
+
+            for (const petal of petals) {
+              const elapsed = timestamp - startTime - petal.delay;
+              if (elapsed < 0) {
+                hasActivePetals = true;
+                continue;
+              }
+              if (elapsed >= petal.duration) {
+                continue;
+              }
+
+              hasActivePetals = true;
+              const progress = elapsed / petal.duration;
+              const travelProgress = 1 - Math.pow(1 - progress, 2);
+              const x = petal.x - petal.distance * travelProgress;
+              const seconds = elapsed / 1000;
+              const y = petal.y + Math.sin(seconds * 2.4 + petal.phase) * petal.sway;
+
+              playPetalContext.save();
+              playPetalContext.globalAlpha = Math.min(1, elapsed / 100);
+              playPetalContext.translate(x, y);
+              playPetalContext.rotate(petal.rotation + petal.rotationSpeed * seconds);
+              playPetalContext.drawImage(
+                playPetalImage,
+                -petal.size / 2,
+                -petal.height / 2,
+                petal.size,
+                petal.height
+              );
+              playPetalContext.restore();
+            }
+
+            if (hasActivePetals) {
+              window.requestAnimationFrame(drawFrame);
+            } else {
+              playPetalContext.clearRect(0, 0, window.innerWidth, window.innerHeight);
+            }
+          }
+
+          window.requestAnimationFrame(drawFrame);
+        };
+
+        if (playPetalImage.complete && playPetalImage.naturalWidth > 0) {
+          startAnimation();
+        } else {
+          playPetalImage.addEventListener('load', startAnimation, { once: true });
+        }
+      }
+    </script>
+      <script>
+      ["pointerdown", "keydown", "wheel"].forEach((t) =>
+        window.addEventListener(t, () => window.parent.postMessage("bgm-start", "*"), { once: true })
+      );
+    </script>
+  </body>
+</html>
+

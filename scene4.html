@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A Forgotten Garden - Scene 4</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        touch-action: none;
+      }
+
+      img {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+      }
+
+      .garden-scene {
+        z-index: 0;
+        object-fit: cover;
+        object-position: center;
+      }
+
+      .hand-overlay {
+        z-index: 1;
+        object-fit: contain;
+        -webkit-user-drag: none;
+        user-select: none;
+        touch-action: none;
+      }
+
+      .scene-transition {
+        position: fixed;
+        inset: 0;
+        z-index: 10;
+        overflow: hidden;
+        pointer-events: none;
+      }
+
+      .petal-field {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <img class="garden-scene" src="图片/盛开场景.PNG" alt="盛开场景" />
+    <img class="hand-overlay" src="图片/手.PNG" alt="手" draggable="false" />
+    <div class="scene-transition" aria-hidden="true">
+      <canvas class="petal-field"></canvas>
+    </div>
+    <script>
+      const handOverlay = document.querySelector('.hand-overlay');
+      const petalField = document.querySelector('.petal-field');
+      const petalContext = petalField.getContext('2d');
+      const petalImage = new Image();
+      const activePetals = [];
+      let handDragStart = null;
+      let isPetalAnimationRunning = false;
+      let isReturningToScene3 = false;
+
+      petalImage.addEventListener('load', startPetalAnimation, { once: true });
+      petalImage.src = '图片/花瓣.PNG';
+
+      handOverlay.addEventListener('pointerdown', (event) => {
+        if (event.button !== 0) {
+          return;
+        }
+
+        event.preventDefault();
+        handDragStart = { x: event.clientX, y: event.clientY, pointerId: event.pointerId };
+        handOverlay.setPointerCapture(event.pointerId);
+      });
+
+      handOverlay.addEventListener('contextmenu', (event) => {
+        event.preventDefault();
+      });
+
+      handOverlay.addEventListener('pointerup', (event) => {
+        if (!handDragStart || event.pointerId !== handDragStart.pointerId) {
+          return;
+        }
+
+        const deltaX = event.clientX - handDragStart.x;
+        const deltaY = event.clientY - handDragStart.y;
+        if (Math.hypot(deltaX, deltaY) >= 10) {
+          spawnDragPetals(handDragStart.x, handDragStart.y, deltaX, deltaY);
+        }
+        handDragStart = null;
+      });
+
+      handOverlay.addEventListener('pointercancel', () => {
+        handDragStart = null;
+      });
+
+      window.addEventListener('wheel', (event) => {
+        if (event.deltaY >= 0 || isReturningToScene3) {
+          return;
+        }
+
+        isReturningToScene3 = true;
+        sessionStorage.setItem('scene3ReturnFromScene4', 'true');
+        window.setTimeout(() => {
+          if (window.history.length > 1) {
+            window.history.back();
+          } else {
+            window.location.href = 'scene3.html';
+          }
+        }, 900);
+      }, { passive: true });
+
+      function spawnDragPetals(x, y, deltaX, deltaY) {
+        const dragAngle = Math.atan2(deltaY, deltaX);
+        const dragPetalCount = 100;
+        for (let index = 0; index < dragPetalCount; index += 1) {
+          const angle = dragAngle + (Math.random() - 0.5) * 0.55;
+          const speed = 180 + Math.random() * 280;
+          const pathProgress = (index + Math.random()) / dragPetalCount;
+          const horizontalSpread = (Math.random() - 0.5) * 180;
+          const verticalSpread = (Math.random() - 0.5) * 180;
+          addPetal(
+            x + deltaX * pathProgress + horizontalSpread,
+            y + deltaY * pathProgress + verticalSpread,
+            Math.cos(angle),
+            Math.sin(angle),
+            50 + Math.random() * 80,
+            speed,
+            (index / (dragPetalCount - 1)) * 1800 + Math.random() * 120
+          );
+        }
+        startPetalAnimation();
+      }
+
+      function addPetal(x, y, directionX, directionY, size, speed, delay) {
+        activePetals.push({
+          x,
+          y,
+          vx: directionX * speed,
+          vy: directionY * speed,
+          size,
+          rotation: Math.random() * Math.PI * 2,
+          rotationSpeed: (Math.random() - 0.5) * 3,
+          sway: 6 + Math.random() * 24,
+          phase: Math.random() * Math.PI * 2,
+          delay,
+          startTime: performance.now()
+        });
+      }
+
+      function startPetalAnimation() {
+        if (!petalImage.complete || !petalImage.naturalWidth || isPetalAnimationRunning || activePetals.length === 0) {
+          return;
+        }
+
+        isPetalAnimationRunning = true;
+        const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.25);
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        const petalHeightRatio = petalImage.naturalHeight / petalImage.naturalWidth;
+        petalField.width = Math.round(width * pixelRatio);
+        petalField.height = Math.round(height * pixelRatio);
+
+        function drawFrame(timestamp) {
+          const frameWidth = window.innerWidth;
+          const frameHeight = window.innerHeight;
+          petalContext.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+          petalContext.clearRect(0, 0, frameWidth, frameHeight);
+          let writeIndex = 0;
+
+          for (const petal of activePetals) {
+            const elapsed = timestamp - petal.startTime - petal.delay;
+            if (elapsed < 0) {
+              activePetals[writeIndex] = petal;
+              writeIndex += 1;
+              continue;
+            }
+
+            const seconds = elapsed / 1000;
+            const x = petal.x + petal.vx * seconds;
+            const y = petal.y + petal.vy * seconds +
+              Math.sin(seconds * 2.4 + petal.phase) * petal.sway;
+            const petalHeight = petal.size * petalHeightRatio;
+            const hasPassedHorizontalEdge = petal.vx < 0
+              ? x + petal.size / 2 < 0
+              : x - petal.size / 2 > frameWidth;
+            const hasPassedVerticalEdge = petal.vy < 0
+              ? y + petalHeight / 2 < 0
+              : y - petalHeight / 2 > frameHeight;
+            if (hasPassedHorizontalEdge || hasPassedVerticalEdge) {
+              continue;
+            }
+
+            activePetals[writeIndex] = petal;
+            writeIndex += 1;
+            petalContext.save();
+            petalContext.globalAlpha = Math.min(1, elapsed / 100);
+            petalContext.translate(x, y);
+            petalContext.rotate(petal.rotation + petal.rotationSpeed * seconds);
+            petalContext.drawImage(
+              petalImage,
+              -petal.size / 2,
+              -petalHeight / 2,
+              petal.size,
+              petalHeight
+            );
+            petalContext.restore();
+          }
+
+          activePetals.length = writeIndex;
+          if (activePetals.length > 0) {
+            window.requestAnimationFrame(drawFrame);
+          } else {
+            isPetalAnimationRunning = false;
+            petalContext.clearRect(0, 0, frameWidth, frameHeight);
+          }
+        }
+
+        window.requestAnimationFrame(drawFrame);
+      }
+    </script>
+      <script>
+      ["pointerdown", "keydown", "wheel"].forEach((t) =>
+        window.addEventListener(t, () => window.parent.postMessage("bgm-start", "*"), { once: true })
+      );
+    </script>
+  </body>
+</html>

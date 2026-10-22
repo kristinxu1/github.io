@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>盛开与凋谢</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Cormorant+Garamond&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+      }
+
+      .scene {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+      }
+
+      .blooming-scene {
+        z-index: 0;
+      }
+
+      .wilted-scene {
+        z-index: 1;
+        pointer-events: none;
+        --cursor-x: -100px;
+        --cursor-y: -100px;
+        -webkit-mask-image: radial-gradient(
+          circle 150px at var(--cursor-x) var(--cursor-y),
+          transparent 149.5px,
+          #000 150px
+        );
+        mask-image: radial-gradient(
+          circle 150px at var(--cursor-x) var(--cursor-y),
+          transparent 149.5px,
+          #000 150px
+        );
+      }
+
+      .title {
+        position: fixed;
+        top: calc(50% - 218px);
+        left: 50%;
+        z-index: 2;
+        margin: 0;
+        color: #fff;
+        font-family: "UnifrakturMaguntia", serif;
+        font-size: 90pt;
+        font-weight: normal;
+        line-height: 1;
+        white-space: nowrap;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+      }
+
+      .enter-label {
+        position: fixed;
+        top: calc(50% + 200px);
+        left: 50%;
+        z-index: 3;
+        margin: 0;
+        color: #fff;
+        font-family: "UnifrakturMaguntia", serif;
+        font-size: 36pt;
+        font-weight: normal;
+        line-height: 1;
+        transform: translate(-50%, -50%);
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+      .intro-black {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        background: #000;
+        opacity: 1;
+        transition: opacity 1s ease;
+      }
+
+      .intro-black.is-hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .intro-video {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 2s ease;
+      }
+
+      .intro-video.is-visible {
+        opacity: 1;
+      }
+
+      .intro-text {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        z-index: 101;
+        margin: 0;
+        color: #fff;
+        font-family: "Cormorant Garamond", serif;
+        font-size: 40pt;
+        width: max-content;
+        max-width: 90vw;
+        text-align: center;
+        transform: translate(-50%, -50%);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 1s ease;
+      }
+
+      .intro-text.is-visible {
+        opacity: 1;
+      }
+
+      .intro-text:nth-of-type(3),
+      .intro-text:nth-of-type(4),
+      .intro-text:nth-of-type(5),
+      .intro-text:nth-of-type(6) {
+        -webkit-text-stroke: 4px #000;
+        paint-order: stroke fill;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="intro-black"></div>
+    <video class="intro-video" src="图片/开头玫瑰.mp4" muted playsinline preload="auto"></video>
+    <p class="intro-text">I am a scientist.</p>
+    <p class="intro-text">I've heard of a mysterious place where nothing grows.</p>
+    <p class="intro-text">Long ago, it was known as the Blue Rose Garden, a beautiful place filled with blooming blue roses.</p>
+    <p class="intro-text">But now, the garden is completely lifeless.<br />Not a single plant remains.</p>
+    <p class="intro-text">I was sent here to investigate what happened.</p>
+    <p class="intro-text">But I never expected that this investigation would lead me into the world of fairies.</p>
+    <img
+      class="scene blooming-scene"
+      src="图片/盛开场景.PNG"
+      alt="盛开场景"
+    />
+    <img
+      class="scene wilted-scene"
+      src="图片/凋谢场景.PNG"
+      alt="凋谢场景"
+    />
+    <h1 class="title">A Forgotten Garden</h1>
+    <a class="enter-label" href="scene2.html">ENTER</a>
+
+    <script>
+      document.addEventListener('click', () => {
+        const [first, second, third, fourth, fifth, sixth] = document.querySelectorAll('.intro-text');
+        first.classList.add('is-visible');
+        setTimeout(() => first.classList.remove('is-visible'), 3000);
+        setTimeout(() => second.classList.add('is-visible'), 4000);
+        setTimeout(() => second.classList.remove('is-visible'), 7000);
+        setTimeout(() => {
+          third.classList.add('is-visible');
+          const video = document.querySelector('.intro-video');
+          video.muted = true;
+          video.play();
+          video.classList.add('is-visible');
+        }, 8000);
+        setTimeout(() => third.classList.remove('is-visible'), 11000);
+        setTimeout(() => fourth.classList.add('is-visible'), 12000);
+        setTimeout(() => fourth.classList.remove('is-visible'), 15000);
+        setTimeout(() => fifth.classList.add('is-visible'), 16000);
+        setTimeout(() => fifth.classList.remove('is-visible'), 19000);
+        setTimeout(() => sixth.classList.add('is-visible'), 20000);
+        setTimeout(() => sixth.classList.remove('is-visible'), 23000);
+        setTimeout(() => {
+          const video = document.querySelector('.intro-video');
+          video.style.pointerEvents = 'auto';
+          video.style.cursor = 'pointer';
+          video.addEventListener('click', () => {
+            video.style.pointerEvents = 'none';
+            video.style.transition = 'opacity 1s ease';
+            video.classList.remove('is-visible');
+            document.querySelector('.intro-black').classList.add('is-hidden');
+            setTimeout(() => video.pause(), 1000);
+          }, { once: true });
+        }, 24000);
+      }, { once: true });
+    </script>
+    <script>
+      const wiltedScene = document.querySelector('.wilted-scene');
+
+      document.addEventListener('pointermove', (event) => {
+        wiltedScene.style.setProperty('--cursor-x', `${event.clientX}px`);
+        wiltedScene.style.setProperty('--cursor-y', `${event.clientY}px`);
+      });
+    </script>
+      <script>
+      ["pointerdown", "keydown", "wheel"].forEach((t) =>
+        window.addEventListener(t, () => window.parent.postMessage("bgm-start", "*"), { once: true })
+      );
+    </script>
+  </body>
+</html>

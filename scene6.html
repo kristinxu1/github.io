@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A Forgotten Garden - Scene 6</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+      }
+
+      img {
+        display: block;
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+
+      .wilted-scene {
+        z-index: 0;
+        object-fit: cover;
+        object-position: center;
+      }
+
+      .dialogue-box {
+        inset: auto 0 0;
+        z-index: 3;
+        width: 100%;
+        height: auto;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 200ms ease;
+      }
+
+      .dialogue-box.is-visible {
+        opacity: 0.7;
+      }
+
+      .dialogue-copy {
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        z-index: 4;
+        display: flex;
+        width: 100vw;
+        aspect-ratio: 1920 / 524;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.12em;
+        padding: 2% 8%;
+        box-sizing: border-box;
+        color: #000;
+        font-family: "Cormorant Garamond", serif;
+        font-size: 30pt;
+        font-weight: 700;
+        line-height: 1.1;
+        text-align: center;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity 200ms ease;
+      }
+
+      .dialogue-copy.is-visible {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .dialogue-copy span {
+        display: block;
+        width: 100%;
+      }
+
+      .story-video {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 10;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        background: #000;
+        pointer-events: none;
+      }
+
+      .story-video.is-playing {
+        display: block;
+      }
+
+      .video-fade {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 11;
+        background: #000;
+        opacity: 1;
+        pointer-events: none;
+        transition: opacity 1.5s ease;
+      }
+
+      .video-fade.is-active {
+        display: block;
+      }
+
+      .video-fade.is-fading {
+        opacity: 0;
+      }
+
+      .rose-person {
+        z-index: 2;
+        transform: translateX(-480px);
+      }
+    </style>
+  </head>
+  <body>
+    <img class="wilted-scene" src="图片/凋谢场景.PNG" alt="凋谢场景" />
+    <img class="dialogue-box" src="图片/对话框.PNG" alt="对话框" />
+    <img class="rose-person" src="图片/玫瑰人.PNG" alt="玫瑰人" />
+    <div class="dialogue-copy" aria-hidden="true">
+      <span>Now you’ve seen what this garden used to be.</span>
+    </div>
+    <div class="dialogue-copy" aria-hidden="true">
+      <span>The blue roses never hurt anyone.</span>
+      <span>They were simply different.</span>
+    </div>
+    <div class="dialogue-copy" aria-hidden="true">
+      <span>But people began to fear</span>
+      <span>what they didn’t understand.</span>
+    </div>
+    <div class="dialogue-copy" aria-hidden="true">
+      <span>Rumors and gossip</span>
+      <span>brought the garden to ruin.</span>
+    </div>
+    <div class="dialogue-copy" aria-hidden="true">
+      <span>And eventually, they forgot us.</span>
+    </div>
+    <div class="dialogue-copy" aria-hidden="true">
+      <span>Tell me... is being different</span>
+      <span>really something to be afraid of?</span>
+    </div>
+    <div class="dialogue-copy" aria-hidden="true">
+      <span>Let me tell you another story</span>
+      <span>about this garden’s past.</span>
+    </div>
+    <div class="dialogue-copy dialogue-after" aria-hidden="true">
+      <span>Now you know what happened</span>
+      <span>to this garden.</span>
+    </div>
+    <div class="dialogue-copy dialogue-after" aria-hidden="true">
+      <span>We never brought anyone misfortune.</span>
+      <span>We were simply different.</span>
+    </div>
+    <div class="dialogue-copy dialogue-after" aria-hidden="true">
+      <span>But people feared us,</span>
+      <span>and eventually, they forgot us.</span>
+    </div>
+    <div class="dialogue-copy dialogue-after" aria-hidden="true">
+      <span>Do you think we deserved to be forgotten?</span>
+    </div>
+    <video class="story-video" src="图片/5.MOV" playsinline preload="auto" disablepictureinpicture controlslist="nodownload noplaybackrate noremoteplayback"></video>
+    <div class="video-fade"></div>
+    <script>
+      const rosePerson = document.querySelector('.rose-person');
+      const dialogueBox = document.querySelector('.dialogue-box');
+      const dialogues = document.querySelectorAll('.dialogue-copy:not(.dialogue-after)');
+      const afterDialogues = document.querySelectorAll('.dialogue-after');
+      let clickCount = 0;
+      let videoDone = false;
+      let afterCount = 0;
+      let fadedOut = false;
+
+      const showDialogue = (index, list = dialogues) => {
+        list.forEach((el, i) => {
+          el.classList.toggle('is-visible', i === index);
+          el.setAttribute('aria-hidden', i === index ? 'false' : 'true');
+        });
+      };
+
+      rosePerson.addEventListener('click', () => {
+        if (videoDone) {
+          if (afterCount >= afterDialogues.length) {
+            if (fadedOut) return;
+            fadedOut = true;
+            [rosePerson, dialogueBox, ...afterDialogues].forEach((el) => {
+              el.style.transition = 'opacity 1s ease';
+              el.style.opacity = '0';
+            });
+            rosePerson.style.pointerEvents = 'none';
+            setTimeout(() => { location.href = 'scene7.html'; }, 2000);
+            return;
+          }
+          dialogueBox.classList.add('is-visible');
+          showDialogue(afterCount, afterDialogues);
+          afterCount += 1;
+          return;
+        }
+        if (clickCount >= dialogues.length) return;
+        dialogueBox.classList.add('is-visible');
+        showDialogue(clickCount);
+        clickCount += 1;
+        if (clickCount === dialogues.length) {
+          setTimeout(playVideo, 2000);
+        }
+      });
+
+      const video = document.querySelector('.story-video');
+      video.defaultPlaybackRate = 0.67;
+      video.playbackRate = 0.67;
+      video.addEventListener('pause', () => {
+        if (!video.ended) video.play();
+      });
+      video.addEventListener('contextmenu', (e) => e.preventDefault());
+
+      video.addEventListener('ended', () => {
+        setTimeout(() => {
+          video.classList.remove('is-playing');
+          dialogueBox.classList.remove('is-visible');
+          dialogues.forEach((el) => {
+            el.classList.remove('is-visible');
+            el.setAttribute('aria-hidden', 'true');
+          });
+          document.querySelectorAll('.wilted-scene, .rose-person, .dialogue-box, .dialogue-after').forEach((el) => {
+            el.style.display = '';
+          });
+          videoDone = true;
+        }, 1000);
+      });
+
+      const videoFade = document.querySelector('.video-fade');
+      video.addEventListener('playing', () => {
+        videoFade.classList.add('is-fading');
+      }, { once: true });
+      videoFade.addEventListener('transitionend', () => {
+        videoFade.classList.remove('is-active');
+      });
+
+      function playVideo() {
+        document.querySelectorAll('img, .dialogue-copy').forEach((el) => {
+          el.style.display = 'none';
+        });
+        videoFade.classList.add('is-active');
+        video.classList.add('is-playing');
+        video.play().catch(() => {
+          video.muted = true;
+          video.play();
+        });
+      }
+    </script>
+      <script>
+      ["pointerdown", "keydown", "wheel"].forEach((t) =>
+        window.addEventListener(t, () => window.parent.postMessage("bgm-start", "*"), { once: true })
+      );
+    </script>
+  </body>
+</html>
